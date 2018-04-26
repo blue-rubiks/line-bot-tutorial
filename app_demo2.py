@@ -84,21 +84,11 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(text=content))
         return 0
-    if event.message.text == "來張貼圖":
-        # ref. https://developers.line.me/media/messaging-api/sticker_list.pdf
-        sticker_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 21, 100, 101, 102, 103, 104, 105, 106,
-                       107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125,
-                       126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 401, 402]
-        index_id = random.randint(0, len(sticker_ids))
-        sticker_id = str(sticker_ids[index_id])
-        sticker_message = StickerSendMessage(
-            package_id='1',
-            sticker_id=sticker_id
-        )
+    if event.message.text == "ptt熱門文章":
+        content = ptt_hot()
         line_bot_api.reply_message(
             event.reply_token,
-            sticker_message)
-
+            TextSendMessage(text=content))
         return 0
 
     if event.message.text == "demo":
@@ -113,10 +103,6 @@ def handle_message(event):
                         label='蘋果即時新聞',
                         text='蘋果即時新聞'
                     ),
-                    MessageTemplateAction(
-                        label='貼圖',
-                        text='來張貼圖'
-                    ),
                     URITemplateAction(
                         label='點我到 Google',
                         uri='https://www.google.com.tw/'
@@ -126,11 +112,68 @@ def handle_message(event):
         )
         line_bot_api.reply_message(event.reply_token, buttons_template)
         return 0
+    if event.message.text == "carousel":
+        carousel_template_message = TemplateSendMessage(
+            alt_text='Carousel template',
+            template=CarouselTemplate(
+                columns=[
+                    CarouselColumn(
+                        thumbnail_image_url='https://i.imgur.com/vkqbLnz.png',
+                        title='this is menu1',
+                        text='description1',
+                        actions=[
+                            MessageTemplateAction(
+                                label='蘋果即時新聞',
+                                text='蘋果即時新聞'
+                            ),
+                            URITemplateAction(
+                                label='點我到 Google',
+                                uri='https://www.google.com.tw/'
+                            )
+                        ]
+                    ),
+                    CarouselColumn(
+                        thumbnail_image_url='https://i.imgur.com/sbOTJt4.png',
+                        title='this is menu2',
+                        text='description2',
+                        actions=[
+                            MessageTemplateAction(
+                                label='ptt熱門文章',
+                                text='ptt熱門文章'
+                            ),
+                            URITemplateAction(
+                                label='點我到 Google',
+                                uri='https://www.google.com.tw/'
+                            )
+                        ]
+                    )
+                ]
+            )
+        )
+        line_bot_api.reply_message(
+            event.reply_token,
+            carousel_template_message)
+        return 0
 
+
+@handler.add(MessageEvent, message=StickerMessage)
+def handle_sticker_message(event):
+    print("package_id:", event.message.package_id)
+    print("sticker_id:", event.message.sticker_id)
+    # ref. https://developers.line.me/media/messaging-api/sticker_list.pdf
+    sticker_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 21, 100, 101, 102, 103, 104, 105, 106,
+                   107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125,
+                   126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 401, 402]
+    index_id = random.randint(0, len(sticker_ids)-1)
+    sticker_id = str(sticker_ids[index_id])
+    print(index_id)
+    sticker_message = StickerSendMessage(
+        package_id='1',
+        sticker_id=sticker_id
+    )
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text)
-    )
+        sticker_message)
 
 
 if __name__ == '__main__':
